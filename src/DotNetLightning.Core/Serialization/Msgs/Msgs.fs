@@ -17,7 +17,12 @@ open DotNetLightning.Serialization
 open ResultUtils
 open ResultUtils.Portability
 
-// #region serialization
+// todo: generate dtos automatically from the spec when the tooling is ready (e.g. https://github.com/ElementsProject/lightning/blob/master/tools/generate-wire.py)
+// todo: stop using mutable state and go for more F# idiomatic way.
+
+/// <namespacedoc>
+///     This namespace contains a p2p messages for lightning network.
+/// </namespacedoc>
 type P2PDecodeError =
     | UnknownVersion
     | FeatureError of FeatureError
@@ -129,31 +134,42 @@ module internal TypeFlag =
     [<Literal>]
     let GossipTimestampFilter = 265us
 
+/// The marker interface to annotate the type for p2p serialization.
 type ILightningMsg =
     interface
     end
 
+/// The marker interface to annotate the type for very basic p2p messaging.
+/// e.g. ping/pong, error.
 type ISetupMsg =
     inherit ILightningMsg
 
+/// The marker interface to annotate the type p2p messages for managing the
+/// channel itself e.g. opening/closure/update.
+/// but not for htlc payment.
 type IChannelMsg =
     inherit ILightningMsg
 
+/// The marker interface to annotate the p2p message related to HTLC update.
 type IHTLCMsg =
     inherit IChannelMsg
 
+/// The marker interface to annotate the p2p message related to channel update
+/// (including htlc creation/revocation).
 type IUpdateMsg =
     inherit IChannelMsg
 
+/// The marker interface to annotate the p2p message related to routing
 type IRoutingMsg =
     inherit ILightningMsg
 
+/// The marker interface to annotate the p2p message related to querying
+/// the information to other nodes.
 type IQueryMsg =
     inherit IRoutingMsg
 
-// #endregion
-
-/// Should throw `FormatException` when it fails
+/// The type serializable for lightning p2p network.
+/// Should throw `FormatException` when it fails.
 type ILightningSerializable<'T when 'T: (new: unit -> 'T) and 'T :> ILightningSerializable<'T>> =
     abstract Deserialize: LightningReaderStream -> unit
     abstract Serialize: LightningWriterStream -> unit
@@ -440,6 +456,8 @@ type ILightningSerializableExtension() =
 // ---------- network message primitives
 type OptionalField<'T> = option<'T>
 
+/// onion_packet described in [bolt04](https://github.com/lightning/bolts/blob/master/04-onion-routing.md)
+/// todo: add methods to parse `OnionPayload` from `HopData` field.
 [<CLIMutable; StructuralComparison; StructuralEquality>]
 type OnionPacket =
     {
@@ -489,6 +507,7 @@ type OnionErrorPacket =
         Data: array<byte>
     }
 
+/// `init` in [bolt01](https://github.com/lightning/bolts/blob/master/01-messaging.md)
 [<CLIMutable>]
 type InitMsg =
     {
@@ -582,6 +601,7 @@ type InitMsg =
                 this.TLVStream |> Array.map(fun tlv -> tlv.ToGenericTLV())
             )
 
+/// `ping` in [bolt01](https://github.com/lightning/bolts/blob/master/01-messaging.md)
 [<CLIMutable>]
 type PingMsg =
     {
@@ -602,6 +622,7 @@ type PingMsg =
             ls.Write(this.BytesLen, false)
             ls.Write(Array.zeroCreate<byte>((int) this.BytesLen))
 
+/// `pong` in [bolt01](https://github.com/lightning/bolts/blob/master/01-messaging.md)
 [<CLIMutable>]
 type PongMsg =
     {
@@ -619,6 +640,7 @@ type PongMsg =
             ls.Write(this.BytesLen, false)
             ls.Write(Array.zeroCreate<byte>((int) this.BytesLen))
 
+/// `open_channel` in [bolt02](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md)
 [<CLIMutable>]
 type OpenChannelMsg =
     {
@@ -705,6 +727,7 @@ type OpenChannelMsg =
         |> Seq.tryExactlyOne
         |> Option.flatten
 
+/// `accept_channel` in [bolt02](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md)
 [<CLIMutable>]
 type AcceptChannelMsg =
     {
@@ -783,6 +806,7 @@ type AcceptChannelMsg =
         |> Seq.tryExactlyOne
         |> Option.flatten
 
+/// `funding_created` in [bolt02](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md)
 [<CLIMutable>]
 type FundingCreatedMsg =
     {
@@ -807,6 +831,7 @@ type FundingCreatedMsg =
             ls.Write(this.FundingOutputIndex.Value, false)
             ls.Write(this.Signature)
 
+/// `funding_signed` in [bolt02](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md)
 [<CLIMutable>]
 type FundingSignedMsg =
     {
@@ -825,6 +850,7 @@ type FundingSignedMsg =
             ls.Write(this.ChannelId.Value.ToBytes())
             ls.Write(this.Signature)
 
+/// `funding_locked` in [bolt02](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md)
 [<CLIMutable>]
 type FundingLockedMsg =
     {
@@ -843,6 +869,7 @@ type FundingLockedMsg =
             ls.Write(this.ChannelId.Value.ToBytes())
             ls.Write(this.NextPerCommitmentPoint.ToBytes())
 
+/// `shutdown` in [bolt02](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md)
 [<CLIMutable>]
 type ShutdownMsg =
     {
@@ -861,6 +888,7 @@ type ShutdownMsg =
             ls.Write(this.ChannelId.Value.ToBytes())
             ls.WriteWithLen(this.ScriptPubKey.ToBytes())
 
+/// `closing_signed` in [bolt02](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md)
 [<CLIMutable>]
 type ClosingSignedMsg =
     {
@@ -882,6 +910,7 @@ type ClosingSignedMsg =
             ls.Write(this.FeeSatoshis.Satoshi, false)
             ls.Write(this.Signature)
 
+/// `update_add_htlc` in [bolt02](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md)
 [<CLIMutable; StructuralComparison; StructuralEquality>]
 type UpdateAddHTLCMsg =
     {
@@ -917,6 +946,7 @@ type UpdateAddHTLCMsg =
             (this.OnionRoutingPacket :> ILightningSerializable<OnionPacket>)
                 .Serialize(ls)
 
+/// `update_fulfill_htlc` in [bolt02](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md)
 [<CLIMutable>]
 type UpdateFulfillHTLCMsg =
     {
@@ -941,6 +971,7 @@ type UpdateFulfillHTLCMsg =
             ls.Write(this.HTLCId.Value, false)
             ls.Write(this.PaymentPreimage.ToByteArray())
 
+/// `update_fail_htlc` in [bolt02](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md)
 [<CLIMutable>]
 type UpdateFailHTLCMsg =
     {
@@ -967,6 +998,7 @@ type UpdateFailHTLCMsg =
             ls.Write(this.HTLCId.Value, false)
             ls.WriteWithLen(this.Reason.Data)
 
+/// `update_fail_malformed_htlc` in [bolt02](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md)
 [<CLIMutable>]
 type UpdateFailMalformedHTLCMsg =
     {
@@ -992,6 +1024,7 @@ type UpdateFailMalformedHTLCMsg =
             ls.Write(this.Sha256OfOnion, true)
             ls.Write(this.FailureCode.Value, false)
 
+/// `commitment_signed` in [bolt02](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md)
 [<CLIMutable>]
 type CommitmentSignedMsg =
     {
@@ -1017,6 +1050,7 @@ type CommitmentSignedMsg =
             ls.Write((uint16) this.HTLCSignatures.Length, false)
             this.HTLCSignatures |> List.iter(ls.Write)
 
+/// `revoke_and_ack` in [bolt02](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md)
 [<CLIMutable>]
 type RevokeAndACKMsg =
     {
@@ -1038,6 +1072,7 @@ type RevokeAndACKMsg =
             ls.Write(this.PerCommitmentSecret.ToBytes())
             ls.Write(this.NextPerCommitmentPoint.ToBytes())
 
+/// `update_fee` in [bolt02](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md)
 [<CLIMutable>]
 type UpdateFeeMsg =
     {
@@ -1057,6 +1092,9 @@ type UpdateFeeMsg =
             ls.Write(this.ChannelId.Value.ToBytes())
             ls.Write(this.FeeRatePerKw.Value, false)
 
+/// `data_loss_protect` in `channel_reestablish` which exists only when
+/// `option_data_lock_protect` is negotiated
+/// see [bolt02](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md)
 [<CLIMutable>]
 type DataLossProtect =
     {
@@ -1085,6 +1123,7 @@ type DataLossProtect =
             ls.Write(this.MyCurrentPerCommitmentPoint.ToBytes())
 
 
+/// `channel_reestablish` in [bolt02](https://github.com/lightning/bolts/blob/master/02-peer-protocol.md)
 [<CLIMutable>]
 type ChannelReestablishMsg =
     {
@@ -1117,6 +1156,7 @@ type ChannelReestablishMsg =
                 (dataLossProtect :> ILightningSerializable<DataLossProtect>)
                     .Serialize ls
 
+/// `announcement_signatures` in [bolt07](https://github.com/lightning/bolts/blob/master/07-routing-gossip.md)
 [<CLIMutable>]
 type AnnouncementSignaturesMsg =
     {
@@ -1144,6 +1184,7 @@ type AnnouncementSignaturesMsg =
             ls.Write(this.NodeSignature)
             ls.Write(this.BitcoinSignature)
 
+/// ip address for Lightning Node's p2p connection.
 type NetAddress =
     | IPv4 of IPv4Or6Data
     | IPv6 of IPv4Or6Data
@@ -1261,8 +1302,8 @@ and NetAdddrSerilizationResult = Result<NetAddress, UnknownNetAddr>
 and UnknownNetAddr = byte
 
 
-/// Only exposed as broadcast of node_announcement should be filtered by node_id
-/// The unsigned part of node_anouncement
+/// `node_announcement` in [bolt07](https://github.com/lightning/bolts/blob/master/07-routing-gossip.md)
+/// without signatures.
 [<CLIMutable>]
 type UnsignedNodeAnnouncementMsg =
     {
@@ -1374,6 +1415,7 @@ type UnsignedNodeAnnouncementMsg =
             ls.Write(this.ExcessAddressData)
             ls.Write(this.ExcessData)
 
+/// `node_announcement` in [bolt07](https://github.com/lightning/bolts/blob/master/07-routing-gossip.md)
 [<CLIMutable>]
 type NodeAnnouncementMsg =
     {
@@ -1400,6 +1442,8 @@ type NodeAnnouncementMsg =
                 .Serialize(ls)
 
 
+/// `channel_announcement` in [bolt07](https://github.com/lightning/bolts/blob/master/07-routing-gossip.md)
+/// without signatures
 [<StructuralComparison; StructuralEquality; CLIMutable>]
 type UnsignedChannelAnnouncementMsg =
     {
@@ -1441,6 +1485,7 @@ type UnsignedChannelAnnouncementMsg =
             ls.Write(this.BitcoinKey2.Value)
             ls.Write(this.ExcessData)
 
+/// `channel_announcement` in [bolt07](https://github.com/lightning/bolts/blob/master/07-routing-gossip.md)
 [<CLIMutable>]
 type ChannelAnnouncementMsg =
     {
@@ -1475,6 +1520,8 @@ type ChannelAnnouncementMsg =
             :> ILightningSerializable<UnsignedChannelAnnouncementMsg>)
                 .Serialize(ls)
 
+/// `channel_update` in [bolt07](https://github.com/lightning/bolts/blob/master/07-routing-gossip.md)
+/// without signatures
 [<CLIMutable>]
 type UnsignedChannelUpdateMsg =
     {
@@ -1534,6 +1581,7 @@ type UnsignedChannelUpdateMsg =
             | None -> ()
 
 
+/// `channel_update` in [bolt07](https://github.com/lightning/bolts/blob/master/07-routing-gossip.md)
 [<CLIMutable>]
 type ChannelUpdateMsg =
     {
@@ -1557,6 +1605,7 @@ type ChannelUpdateMsg =
             (this.Contents :> ILightningSerializable<UnsignedChannelUpdateMsg>)
                 .Serialize(ls)
 
+/// inner data for failure msg described in [bolt04](https://github.com/lightning/bolts/blob/master/04-onion-routing.md#failure-messages)
 type FailureMsgData =
     | InvalidRealm
     | TemporaryNodeFailure
@@ -1582,6 +1631,7 @@ type FailureMsgData =
     | ExpiryTooFar
     | Unknown of array<byte>
 
+/// `failuremsg` in [bolt04](https://github.com/lightning/bolts/blob/master/04-onion-routing.md#failure-messages)
 [<CLIMutable>]
 type FailureMsg =
     {
@@ -1694,7 +1744,6 @@ type FailureMsg =
             | _ -> ()
 
 
-
 [<CLIMutable>]
 type ErrorMsg =
     {
@@ -1792,6 +1841,7 @@ and NodeFailure =
     }
 
 
+/// `query_short_channel_ids` in [bolt07](https://github.com/lightning/bolts/blob/master/07-routing-gossip.md)
 [<CLIMutable>]
 type QueryShortChannelIdsMsg =
     {
@@ -1866,6 +1916,7 @@ type QueryShortChannelIdsMsg =
             |> Array.map(fun tlv -> tlv.ToGenericTLV())
             |> ls.WriteTLVStream
 
+/// `reply_short_channel_ids_end` in [bolt07](https://github.com/lightning/bolts/blob/master/07-routing-gossip.md)
 [<CLIMutable>]
 type ReplyShortChannelIdsEndMsg =
     {
@@ -1904,6 +1955,7 @@ type ReplyShortChannelIdsEndMsg =
                     0uy
             )
 
+/// `query_channel_range` in [bolt07](https://github.com/lightning/bolts/blob/master/07-routing-gossip.md)
 [<CLIMutable>]
 type QueryChannelRangeMsg =
     {
@@ -1934,6 +1986,7 @@ type QueryChannelRangeMsg =
             |> Array.map(fun tlv -> tlv.ToGenericTLV())
             |> ls.WriteTLVStream
 
+/// `reply_channel_range` in [bolt07](https://github.com/lightning/bolts/blob/master/07-routing-gossip.md)
 [<CLIMutable>]
 type ReplyChannelRangeMsg =
     {
@@ -2012,6 +2065,7 @@ type ReplyChannelRangeMsg =
             |> Array.map(fun x -> x.ToGenericTLV())
             |> ls.WriteTLVStream
 
+/// `gossip_timestamp_filter` in [bolt07](https://github.com/lightning/bolts/blob/master/07-routing-gossip.md)
 [<CLIMutable>]
 type GossipTimestampFilterMsg =
     {

@@ -63,6 +63,10 @@ type LightningStream(inner: Stream) =
     override this.Read(buf: array<byte>, offset: int, count: int) =
         this.Inner.Read(buf, offset, count)
 
+/// <summary>
+///     stream for writing lightning p2p msg
+/// </summary>
+/// <seealso cref="LightningStream"/>
 type LightningWriterStream(inner: Stream) =
     inherit LightningStream(inner)
 
@@ -208,6 +212,10 @@ type LightningWriterStream(inner: Stream) =
     member this.WriteTLVStream(tlvs: #seq<GenericTLV>) =
         tlvs |> Seq.iter(fun tlv -> this.WriteTLV(tlv))
 
+/// <summary>
+///     stream for reading lightning p2p msg
+/// </summary>
+/// <seealso cref="LightningStream"/>
 type LightningReaderStream(inner: Stream) =
     inherit LightningStream(inner)
 
