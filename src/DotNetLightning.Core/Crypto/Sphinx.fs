@@ -10,6 +10,10 @@ open DotNetLightning.Serialization.Msgs
 open ResultUtils
 open ResultUtils.Portability
 
+/// Module to work with sphinx encryption.
+/// Which is used in lightning network p2p onion routing.
+/// see [bolt04](https://github.com/lightning/bolts/blob/master/04-onion-routing.md)
+/// for more detail.
 module Sphinx =
     open NBitcoin.Crypto
 
