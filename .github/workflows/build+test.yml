@@ -69,8 +69,6 @@ jobs:
         run: dotnet restore
         with:
           dotnet-version: '5.0.x'
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
       - name: fsharpLint
         run: |
           dotnet tool update --global dotnet-fsharplint --version 0.21.1
