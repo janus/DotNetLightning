@@ -65,6 +65,10 @@ jobs:
           $HOME/.dotnet/tools/fantomless . --recurse
           git diff --exit-code
 
+      - name: Install dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
       - name: fsharpLint
         run: |
           dotnet tool update --global dotnet-fsharplint --version 0.21.1
