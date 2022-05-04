@@ -48,7 +48,7 @@ jobs:
         dotnet restore -p:Portability=True DotNetLightning.sln
         msbuild src/DotNetLightning.Core/DotNetLightning.Core.fsproj -p:Portability=True -p:TargetFramework=netstandard2.0
 
-  style:
+  sanitycheck:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -65,12 +65,6 @@ jobs:
           $HOME/.dotnet/tools/fantomless . --recurse
           git diff --exit-code
 
-  lint:
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
       - name: Setup .NET SDK 6.0
         uses: actions/setup-dotnet@v1
         with:
