@@ -219,7 +219,7 @@
     "publicValuesNames": {
         "enabled": true,
         "config": {
-            "naming": "PascalCase",
+            "naming": "CamelCase",
             "underscores": "None"
         }
     },
