@@ -270,7 +270,7 @@
     "favourConsistentThis": {
         "enabled": true,
         "config": {
-            "symbol": "self"
+            "symbol": "this"
         }
     },
     "avoidTooShortNames": { "enabled": true },
