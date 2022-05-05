@@ -217,7 +217,7 @@
         }
     },
     "publicValuesNames": {
-        "enabled": true,
+        "enabled": false,
         "config": {
             "naming": "CamelCase",
             "underscores": "None"
@@ -268,7 +268,7 @@
     "favourTypedIgnore": { "enabled": true },
     "favourReRaise": { "enabled": true },
     "favourConsistentThis": {
-        "enabled": true,
+        "enabled": false,
         "config": {
             "symbol": "this"
         }
