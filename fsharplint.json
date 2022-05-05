@@ -36,7 +36,7 @@
             "maxComplexity": 40
         }
     },
-    "reimplementsFunction": { "enabled": true },
+    "reimplementsFunction": { "enabled": false },
     "canBeReplacedWithComposition": { "enabled": true },
     "failwithWithSingleArgument": { "enabled": true },
     "raiseWithSingleArgument": { "enabled": true },
@@ -231,7 +231,7 @@
         }
     },
     "internalValuesNames": {
-        "enabled": false,
+        "enabled": true,
         "config": {
             "naming": "CamelCase",
             "underscores": "None"
