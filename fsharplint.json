@@ -197,7 +197,7 @@
         }
     },
     "measureTypeNames": {
-        "enabled": true,
+        "enabled": false,
         "config": {
             "underscores": "None"
         }
