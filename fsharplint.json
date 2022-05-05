@@ -40,7 +40,7 @@
     "canBeReplacedWithComposition": { "enabled": false },
     "failwithWithSingleArgument": { "enabled": true },
     "raiseWithSingleArgument": { "enabled": true },
-    "nullArgWithSingleArgument": { "enabled": true },
+    "nullArgWithSingleArgument": { "enabled": false },
     "invalidOpWithSingleArgument": { "enabled": true },
     "invalidArgWithTwoArguments": { "enabled": true },
     "failwithfWithArgumentsMatchingFormatString": { "enabled": true },
@@ -197,7 +197,7 @@
         }
     },
     "measureTypeNames": {
-        "enabled": false,
+        "enabled": true,
         "config": {
             "underscores": "None"
         }
