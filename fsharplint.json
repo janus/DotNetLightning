@@ -415,7 +415,6 @@
             "List.isEmpty [] ===> true",
             "Array.isEmpty [||] ===> true",
 
-            "fun x -> x ===> id",
             "id x ===> x",
             "id >> f ===> f",
             "f >> id ===> f",
