@@ -300,7 +300,7 @@
     "trailingNewLineInFile": { "enabled": false },
     "noTabCharacters": { "enabled": true },
     "noPartialFunctions": {
-        "enabled": true,
+        "enabled": false,
         "config": {
             "allowedPartials": [],
             "additionalPartials": []
