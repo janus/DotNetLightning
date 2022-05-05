@@ -263,8 +263,8 @@
     },
     "favourIgnoreOverLetWild": { "enabled": false },
     "wildcardNamedWithAsPattern": { "enabled": true },
-    "uselessBinding": { "enabled": true },
-    "tupleOfWildcards": { "enabled": true },
+    "uselessBinding": { "enabled": false },
+    "tupleOfWildcards": { "enabled": false },
     "favourTypedIgnore": { "enabled": false },
     "favourReRaise": { "enabled": true },
     "favourConsistentThis": {
