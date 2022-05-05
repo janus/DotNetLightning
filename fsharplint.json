@@ -141,7 +141,7 @@
         }
     },
     "recordFieldNames": {
-        "enabled": true,
+        "enabled": false,
         "config":  {
             "naming": "PascalCase",
             "underscores": "None"
@@ -183,7 +183,7 @@
         }
     },
     "memberNames": {
-        "enabled": true,
+        "enabled": false,
         "config": {
             "naming": "PascalCase",
             "underscores": "None"
@@ -262,7 +262,7 @@
         }
     },
     "favourIgnoreOverLetWild": { "enabled": false },
-    "wildcardNamedWithAsPattern": { "enabled": true },
+    "wildcardNamedWithAsPattern": { "enabled": false },
     "uselessBinding": { "enabled": false },
     "tupleOfWildcards": { "enabled": false },
     "favourTypedIgnore": { "enabled": false },
