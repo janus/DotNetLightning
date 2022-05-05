@@ -273,7 +273,7 @@
             "symbol": "this"
         }
     },
-    "avoidTooShortNames": { "enabled": true },
+    "avoidTooShortNames": { "enabled": false },
     "indentation": {
         "enabled": false
     },
