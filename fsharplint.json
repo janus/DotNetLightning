@@ -169,7 +169,7 @@
         }
     },
     "literalNames": {
-        "enabled": true,
+        "enabled": false,
         "config": {
             "naming": "PascalCase",
             "underscores": "None"
