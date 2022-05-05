@@ -36,7 +36,7 @@
             "maxComplexity": 40
         }
     },
-    "reimplementsFunction": { "enabled": true },
+    "reimplementsFunction": { "enabled": false },
     "canBeReplacedWithComposition": { "enabled": false },
     "failwithWithSingleArgument": { "enabled": true },
     "raiseWithSingleArgument": { "enabled": true },
