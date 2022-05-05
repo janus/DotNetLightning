@@ -44,7 +44,7 @@
     "invalidOpWithSingleArgument": { "enabled": true },
     "invalidArgWithTwoArguments": { "enabled": true },
     "failwithfWithArgumentsMatchingFormatString": { "enabled": true },
-    "failwithBadUsage": { "enabled": true },
+    "failwithBadUsage": { "enabled": false },
     "maxLinesInLambdaFunction": {
         "enabled": false,
         "config": {
@@ -141,7 +141,7 @@
         }
     },
     "recordFieldNames": {
-        "enabled": true,
+        "enabled": false,
         "config":  {
             "naming": "PascalCase",
             "underscores": "None"
