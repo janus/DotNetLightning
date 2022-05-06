@@ -16,7 +16,7 @@ open ResultUtils.Portability
 [<RequireQualifiedAccess>]
 module Result =
 
-    let ToFSharpCoreResult res =
+    let toFSharpCoreResult res =
 #if NoDUsAsStructs
         match res with
         | Ok o -> FSharp.Core.Result.Ok o
